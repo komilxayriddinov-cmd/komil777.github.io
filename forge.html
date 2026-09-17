@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кузница — пароли и никнеймы</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #191510;
+    --bg-panel: #221C15;
+    --bg-plate: #1D170F;
+    --ember: #E4622A;
+    --ember-hot: #F5A83C;
+    --ink: #F1E7D6;
+    --ink-muted: #A9987F;
+    --line: #3B3020;
+    --line-soft: #2A2318;
+    --danger: #C24B3F;
+    --good: #7FA65C;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #F1ECE1;
+      --bg-panel: #FFFFFF;
+      --bg-plate: #FBF8F2;
+      --ember: #C9501E;
+      --ember-hot: #B8791F;
+      --ink: #221B12;
+      --ink-muted: #756750;
+      --line: #DCD2BE;
+      --line-soft: #E7DFCF;
+      --danger: #B03A2E;
+      --good: #4F7A34;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #191510;
+    --bg-panel: #221C15;
+    --bg-plate: #1D170F;
+    --ember: #E4622A;
+    --ember-hot: #F5A83C;
+    --ink: #F1E7D6;
+    --ink-muted: #A9987F;
+    --line: #3B3020;
+    --line-soft: #2A2318;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  ::selection { background: var(--ember); color: #191510; }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 56px 28px 90px;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 44px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 48px;
+  }
+  .hero-eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    color: var(--ember);
+    letter-spacing: 0.02em;
+  }
+  h1.hero-title {
+    font-family: "Fraunces", serif;
+    font-weight: 700;
+    font-size: clamp(38px, 6vw, 64px);
+    line-height: 1.04;
+    margin: 0;
+    max-width: 15ch;
+  }
+  .hero-title em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ember-hot);
+  }
+  .hero-sub {
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink-muted);
+    max-width: 52ch;
+    margin: 0;
+  }
+  .hero-rule {
+    height: 3px;
+    width: 120px;
+    background: linear-gradient(90deg, var(--ember), var(--ember-hot));
+    border: none;
+    margin-top: 6px;
+  }
+
+  /* ---------- Tool layout ---------- */
+  .tool {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 0;
+    border: 1px solid var(--line);
+    background: var(--bg-panel);
+  }
+  @media (max-width: 760px) {
+    .tool { grid-template-columns: 1fr; }
+  }
+
+  .rail {
+    padding: 28px 24px;
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+  @media (max-width: 760px) {
+    .rail { border-right: none; border-bottom: 1px solid var(--line); }
+  }
+
+  .tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .tab-btn {
+    all: unset;
+    cursor: pointer;
+    font-family: "Fraunces", serif;
+    font-size: 21px;
+    font-weight: 600;
+    padding: 10px 2px;
+    color: var(--ink-muted);
+    border-bottom: 1px solid transparent;
+    transition: color 0.15s ease;
+  }
+  .tab-btn[aria-selected="true"] {
+    color: var(--ink);
+  }
+  .tab-btn[aria-selected="true"] .tab-mark { opacity: 1; transform: translateX(0); }
+  .tab-mark {
+    display: inline-block;
+    color: var(--ember);
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: all 0.15s ease;
+    margin-right: 4px;
+  }
+  .tab-btn:focus-visible { outline: 2px solid var(--ember); outline-offset: 3px; }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .field-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .field-label-row strong {
+    color: var(--ink);
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 500;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 2px;
+    background: var(--line);
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    background: var(--ember);
+    cursor: pointer;
+    border: 3px solid var(--bg-panel);
+    box-shadow: 0 0 0 1px var(--ember);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    background: var(--ember);
+    cursor: pointer;
+    border: 3px solid var(--bg-panel);
+    box-shadow: 0 0 0 1px var(--ember);
+    border-radius: 0;
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14.5px;
+    padding: 3px 0;
+  }
+  .toggle {
+    position: relative;
+    width: 38px;
+    height: 20px;
+    flex-shrink: 0;
+    background: var(--line);
+    cursor: pointer;
+    border: 1px solid var(--line);
+  }
+  .toggle::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    background: var(--ink-muted);
+    transition: all 0.15s ease;
+  }
+  .toggle.on {
+    background: rgba(228, 98, 42, 0.18);
+    border-color: var(--ember);
+  }
+  .toggle.on::after {
+    left: 18px;
+    background: var(--ember);
+  }
+
+  select.plain {
+    width: 100%;
+    background: var(--bg-plate);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    padding: 10px 10px;
+    font-family: "Inter", sans-serif;
+    font-size: 14.5px;
+    cursor: pointer;
+  }
+
+  .rail-note {
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    line-height: 1.5;
+    border-top: 1px solid var(--line-soft);
+    padding-top: 16px;
+  }
+
+  /* ---------- Anvil / output ---------- */
+  .anvil {
+    padding: 30px 32px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+  }
+
+  .plate {
+    position: relative;
+    background: var(--bg-plate);
+    border: 1px solid var(--line);
+    padding: 30px 26px;
+    min-height: 108px;
+    display: flex;
+    align-items: center;
+  }
+  .plate.flash { animation: spark 0.5s ease; }
+  @keyframes spark {
+    0% { box-shadow: 0 0 0 0 rgba(228,98,42,0); }
+    30% { box-shadow: 0 0 0 3px rgba(228,98,42,0.35); }
+    100% { box-shadow: 0 0 0 0 rgba(228,98,42,0); }
+  }
+
+  .output-text {
+    font-family: "JetBrains Mono", monospace;
+    font-size: clamp(19px, 3vw, 27px);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    word-break: break-all;
+    line-height: 1.4;
+    width: 100%;
+  }
+  .output-text .sym { color: var(--ember-hot); }
+  .output-text .num { color: var(--ember); }
+
+  .plate-empty {
+    color: var(--ink-muted);
+    font-family: "Inter", sans-serif;
+    font-size: 15px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    all: unset;
+    cursor: pointer;
+    font-family: "Inter", sans-serif;
+    font-size: 14.5px;
+    font-weight: 600;
+    padding: 12px 22px;
+    text-align: center;
+    transition: transform 0.08s ease, background 0.15s ease;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+  .btn-primary {
+    background: var(--ember);
+    color: #1A1208;
+  }
+  .btn-primary:hover { background: var(--ember-hot); }
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+  }
+  .btn-secondary:hover { border-color: var(--ember); color: var(--ember-hot); }
+  .btn-secondary.copied { border-color: var(--good); color: var(--good); }
+
+  .strength-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .strength-bars {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+    max-width: 220px;
+  }
+  .strength-bars span {
+    height: 4px;
+    flex: 1;
+    background: var(--line);
+  }
+  .strength-bars span.fill1 { background: var(--danger); }
+  .strength-bars span.fill2 { background: var(--ember); }
+  .strength-bars span.fill3 { background: var(--ember-hot); }
+  .strength-bars span.fill4 { background: var(--good); }
+  .strength-label { font-family: "JetBrains Mono", monospace; min-width: 92px; }
+
+  .history-label {
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    margin-top: 4px;
+  }
+  .history {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    all: unset;
+    cursor: pointer;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12.5px;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    color: var(--ink-muted);
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--ember); color: var(--ink); }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .plate.flash { animation: none; }
+    .btn { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-eyebrow">генератор паролей и никнеймов</div>
+    <h1 class="hero-title">Куй пароли и имена<br><em>прямо в браузере</em></h1>
+    <p class="hero-sub">Никакой пароль и никнейм отсюда никуда не отправляется — всё собирается на лету, у вас в браузере. Настройте параметры и нажмите «Выковать».</p>
+    <hr class="hero-rule">
+  </header>
+
+  <main class="tool">
+    <div class="rail">
+      <div class="tabs" role="tablist">
+        <button class="tab-btn" id="tab-pass" role="tab" aria-selected="true"><span class="tab-mark">›</span>Пароль</button>
+        <button class="tab-btn" id="tab-nick" role="tab" aria-selected="false"><span class="tab-mark">›</span>Никнейм</button>
+      </div>
+
+      <!-- Password controls -->
+      <div class="field-group" id="panel-pass">
+        <div>
+          <div class="field-label-row">
+            <span>Длина</span>
+            <strong id="len-value">16</strong>
+          </div>
+          <input type="range" id="len-slider" min="6" max="48" value="16">
+        </div>
+
+        <div class="toggle-row">
+          <span>Заглавные — A-Z</span>
+          <div class="toggle on" data-opt="upper" tabindex="0" role="switch" aria-checked="true"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Строчные — a-z</span>
+          <div class="toggle on" data-opt="lower" tabindex="0" role="switch" aria-checked="true"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Цифры — 0-9</span>
+          <div class="toggle on" data-opt="digits" tabindex="0" role="switch" aria-checked="true"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Символы — #%!*</span>
+          <div class="toggle on" data-opt="symbols" tabindex="0" role="switch" aria-checked="true"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Без похожих — 0/O, l/1</span>
+          <div class="toggle" data-opt="ambiguous" tabindex="0" role="switch" aria-checked="false"></div>
+        </div>
+
+        <div class="rail-note">Похожие символы вроде «0» и «O» иногда путают при ручном вводе — включите фильтр, если будете переписывать пароль от руки.</div>
+      </div>
+
+      <!-- Nickname controls -->
+      <div class="field-group" id="panel-nick" style="display:none;">
+        <div>
+          <div class="field-label-row"><span>Стиль</span></div>
+          <select class="plain" id="nick-style">
+            <option value="fantasy">Фэнтези</option>
+            <option value="cyber">Киберпанк</option>
+            <option value="cute">Милый</option>
+            <option value="fierce">Дерзкий</option>
+          </select>
+        </div>
+
+        <div class="toggle-row">
+          <span>Добавить число</span>
+          <div class="toggle on" data-opt="nick-number" tabindex="0" role="switch" aria-checked="true"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Разделитель _ / -</span>
+          <div class="toggle" data-opt="nick-sep" tabindex="0" role="switch" aria-checked="false"></div>
+        </div>
+
+        <div class="rail-note">Каждый стиль — свой набор слов. Никнейм собирается из прилагательного и существительного, иногда с числом на конце.</div>
+      </div>
+    </div>
+
+    <div class="anvil">
+      <div class="plate" id="plate">
+        <div class="plate-empty" id="plate-empty">Нажмите «Выковать», чтобы получить первый результат</div>
+        <div class="output-text" id="output-text" style="display:none;"></div>
+      </div>
+
+      <div class="strength-row" id="strength-row" style="display:none;">
+        <span class="strength-label" id="strength-label">—</span>
+        <div class="strength-bars">
+          <span id="bar1"></span><span id="bar2"></span><span id="bar3"></span><span id="bar4"></span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="btn-generate">Выковать</button>
+        <button class="btn btn-secondary" id="btn-copy">Скопировать</button>
+      </div>
+
+      <div id="history-block" style="display:none;">
+        <div class="history-label">Последние в этой сессии — нажмите, чтобы скопировать</div>
+        <div class="history" id="history"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <span>Всё генерируется локально в вашем браузере. Ничего не сохраняется и никуда не передаётся.</span>
+    <span id="mode-indicator">режим: пароль</span>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var state = {
+    mode: "pass",
+    opts: { upper: true, lower: true, digits: true, symbols: true, ambiguous: false },
+    nickOpts: { number: true, sep: false },
+    history: { pass: [], nick: [] }
+  };
+
+  var CHARSETS = {
+    upper: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    lower: "abcdefghijklmnopqrstuvwxyz",
+    digits: "0123456789",
+    symbols: "!@#%^&*-_=+?"
+  };
+  var AMBIGUOUS = /[0O1lI]/;
+
+  var WORDS = {
+    fantasy: {
+      adj: ["Тёмный","Лунный","Огненный","Ледяной","Древний","Забытый","Северный","Кровавый","Звёздный","Пепельный","Багровый","Сумрачный"],
+      noun: ["Волк","Ворон","Клинок","Страж","Дракон","Шторм","Феникс","Тень","Странник","Охотник","Курган","Оракул"]
+    },
+    cyber: {
+      adj: ["Нео","Кибер","Хром","Нейро","Диджитал","Синт","Вольт","Пиксель","Дата","Нуль","Квант","Стат"],
+      noun: ["Раннер","Хакер","Дрон","Призрак","Модуль","Сигнал","Вектор","Ядро","Крипт","Импульс","Протокол","Терминал"]
+    },
+    cute: {
+      adj: ["Пушистый","Сладкий","Розовый","Тёплый","Мягкий","Солнечный","Нежный","Мятный","Персиковый","Облачный","Карамельный","Ванильный"],
+      noun: ["Зайка","Пончик","Мишка","Котик","Пирожок","Ёжик","Ягодка","Панда","Совёнок","Лисёнок","Зефир","Одуванчик"]
+    },
+    fierce: {
+      adj: ["Дикий","Безумный","Яростный","Свирепый","Бесстрашный","Хаотичный","Взрывной","Стальной","Жёсткий","Неукротимый","Грозный","Отвязный"],
+      noun: ["Бунтарь","Зверь","Панк","Демон","Мятежник","Варвар","Разрушитель","Гроза","Берсерк","Штурм","Клык","Таран"]
+    }
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ---------- Tabs ----------
+  var tabPass = $("tab-pass"), tabNick = $("tab-nick");
+  var panelPass = $("panel-pass"), panelNick = $("panel-nick");
+  var modeIndicator = $("mode-indicator");
+
+  function setMode(mode) {
+    state.mode = mode;
+    var isPass = mode === "pass";
+    tabPass.setAttribute("aria-selected", isPass ? "true" : "false");
+    tabNick.setAttribute("aria-selected", isPass ? "false" : "true");
+    panelPass.style.display = isPass ? "flex" : "none";
+    panelNick.style.display = isPass ? "none" : "flex";
+    $("strength-row").style.display = isPass ? "flex" : "none";
+    modeIndicator.textContent = "режим: " + (isPass ? "пароль" : "никнейм");
+    resetPlate();
+    renderHistory();
+  }
+  tabPass.addEventListener("click", function () { setMode("pass"); });
+  tabNick.addEventListener("click", function () { setMode("nick"); });
+
+  function resetPlate() {
+    $("plate-empty").style.display = "block";
+    $("output-text").style.display = "none";
+    $("output-text").textContent = "";
+  }
+
+  // ---------- Toggles ----------
+  document.querySelectorAll(".toggle").forEach(function (t) {
+    function flip() {
+      var on = !t.classList.contains("on");
+      t.classList.toggle("on", on);
+      t.setAttribute("aria-checked", on ? "true" : "false");
+      var key = t.getAttribute("data-opt");
+      if (key === "nick-number") state.nickOpts.number = on;
+      else if (key === "nick-sep") state.nickOpts.sep = on;
+      else state.opts[key] = on;
+    }
+    t.addEventListener("click", flip);
+    t.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); }
+    });
+  });
+
+  // ---------- Length slider ----------
+  var lenSlider = $("len-slider"), lenValue = $("len-value");
+  lenSlider.addEventListener("input", function () { lenValue.textContent = lenSlider.value; });
+
+  // ---------- Password generation ----------
+  function randInt(max) {
+    var arr = new Uint32Array(1);
+    window.crypto.getRandomValues(arr);
+    return arr[0] % max;
+  }
+
+  function buildPassword() {
+    var o = state.opts;
+    var pools = [];
+    if (o.upper) pools.push(CHARSETS.upper);
+    if (o.lower) pools.push(CHARSETS.lower);
+    if (o.digits) pools.push(CHARSETS.digits);
+    if (o.symbols) pools.push(CHARSETS.symbols);
+    if (pools.length === 0) { pools = [CHARSETS.lower, CHARSETS.digits]; }
+
+    if (o.ambiguous) {
+      pools = pools.map(function (p) { return p.split("").filter(function (c) { return !AMBIGUOUS.test(c); }).join(""); });
+    }
+
+    var len = parseInt(lenSlider.value, 10);
+    var all = pools.join("");
+    var result = [];
+
+    // guarantee one char from each active pool
+    pools.forEach(function (p) { if (p.length) result.push(p[randInt(p.length)]); });
+    while (result.length < len) { result.push(all[randInt(all.length)]); }
+
+    // shuffle
+    for (var i = result.length - 1; i > 0; i--) {
+      var j = randInt(i + 1);
+      var tmp = result[i]; result[i] = result[j]; result[j] = tmp;
+    }
+    return result.slice(0, len).join("");
+  }
+
+  function renderPassword(pw) {
+    var el = $("output-text");
+    el.innerHTML = pw.split("").map(function (c) {
+      if (/[0-9]/.test(c)) return '<span class="num">' + c + '</span>';
+      if (/[a-zA-Z]/.test(c)) return c;
+      return '<span class="sym">' + escapeHtml(c) + '</span>';
+    }).join("");
+  }
+
+  function escapeHtml(c) {
+    var m = { "&": "&amp;", "<": "&lt;", ">": "&gt;" };
+    return m[c] || c;
+  }
+
+  function scorePassword(pw) {
+    var poolSize = 0;
+    if (/[a-z]/.test(pw)) poolSize += 26;
+    if (/[A-Z]/.test(pw)) poolSize += 26;
+    if (/[0-9]/.test(pw)) poolSize += 10;
+    if (/[^a-zA-Z0-9]/.test(pw)) poolSize += 12;
+    var bits = pw.length * Math.log2(poolSize || 2);
+    if (bits < 40) return { level: 1, label: "Слабый" };
+    if (bits < 65) return { level: 2, label: "Средний" };
+    if (bits < 90) return { level: 3, label: "Сильный" };
+    return { level: 4, label: "Очень сильный" };
+  }
+
+  function updateStrength(pw) {
+    var s = scorePassword(pw);
+    $("strength-label").textContent = s.label;
+    [1, 2, 3, 4].forEach(function (n) {
+      var bar = $("bar" + n);
+      bar.className = n <= s.level ? "fill" + s.level : "";
+    });
+  }
+
+  // ---------- Nickname generation ----------
+  function buildNickname() {
+    var style = $("nick-style").value;
+    var list = WORDS[style];
+    var adj = list.adj[randInt(list.adj.length)];
+    var noun = list.noun[randInt(list.noun.length)];
+    var sepChar = state.nickOpts.sep ? (randInt(2) ? "_" : "-") : "";
+    var base = adj + sepChar + noun;
+    if (state.nickOpts.number) {
+      base += String(randInt(90) + 10);
+    }
+    return base;
+  }
+
+  // ---------- Generate / copy / history ----------
+  var currentValue = "";
+
+  function generate() {
+    var value = state.mode === "pass" ? buildPassword() : buildNickname();
+    currentValue = value;
+
+    $("plate-empty").style.display = "none";
+    var out = $("output-text");
+    out.style.display = "block";
+    if (state.mode === "pass") { renderPassword(value); updateStrength(value); }
+    else { out.textContent = value; }
+
+    var plate = $("plate");
+    plate.classList.remove("flash");
+    void plate.offsetWidth;
+    plate.classList.add("flash");
+
+    pushHistory(value);
+    $("btn-copy").classList.remove("copied");
+    $("btn-copy").textContent = "Скопировать";
+  }
+
+  function pushHistory(value) {
+    var h = state.history[state.mode];
+    h.unshift(value);
+    if (h.length > 6) h.pop();
+    renderHistory();
+  }
+
+  function renderHistory() {
+    var h = state.history[state.mode];
+    var block = $("history-block");
+    var wrap = $("history");
+    if (!h.length) { block.style.display = "none"; return; }
+    block.style.display = "block";
+    wrap.innerHTML = "";
+    h.forEach(function (val) {
+      var chip = document.createElement("button");
+      chip.className = "chip";
+      chip.textContent = val;
+      chip.addEventListener("click", function () { copyText(val); });
+      wrap.appendChild(chip);
+    });
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).catch(function () { fallbackCopy(text); });
+    } else {
+      fallbackCopy(text);
+    }
+    var btn = $("btn-copy");
+    btn.textContent = "Скопировано";
+    btn.classList.add("copied");
+    setTimeout(function () { btn.textContent = "Скопировать"; btn.classList.remove("copied"); }, 1400);
+  }
+
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+
+  $("btn-generate").addEventListener("click", generate);
+  $("btn-copy").addEventListener("click", function () {
+    if (!currentValue) { generate(); return; }
+    copyText(currentValue);
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && document.activeElement.tagName !== "SELECT" && document.activeElement.tagName !== "BUTTON") {
+      generate();
+    }
+  });
+
+  setMode("pass");
+})();
+</script>
+
+</body>
+</html>
